@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение на свидание 💕</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', cursive, sans-serif;
+        }
+
+        body {
+            background-color: #ffe6ee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Анимация падающих сердечек на фоне */
+        .heart-bg {
+            position: absolute;
+            color: #ff4d88;
+            font-size: 20px;
+            top: -30px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0.2;
+            }
+        }
+
+        /* Контейнер карточки */
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 3px solid #ffb3c6;
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        /* Активная страница */
+        .card.active {
+            display: flex;
+        }
+
+        h1, h2 {
+            color: #ff3366;
+            font-size: 24px;
+        }
+
+        img {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #ff80ab;
+        }
+
+        /* Кнопки */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button, .option-btn {
+            background-color: #ff6699;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 102, 153, 0.3);
+            width: 100%;
+        }
+
+        button:hover, .option-btn:hover {
+            background-color: #ff3377;
+            transform: scale(1.05);
+        }
+
+        /* Особенная кнопка "Нет" */
+        #btn-no {
+            background-color: #ffb3c6;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .please-text {
+            color: #ff0055;
+            font-weight: bold;
+            font-size: 16px;
+            height: 20px;
+        }
+
+        /* Инпуты для даты и времени */
+        input[type="datetime-local"] {
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid #ff80ab;
+            outline: none;
+            font-size: 16px;
+            color: #ff3366;
+            background: #fff0f5;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Страница 1 -->
+    <div class="card active" id="page1">
+        <!-- Милая картинка мультяшного зайчика -->
+        <img src="https://img.freepik.com/free-vector/cute-rabbit-holding-heart-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated_138676-5984.jpg" alt="Зайчик">
+        <h1>Хочешь пойти со мной на свидание? 🥺</h1>
+        <div class="please-text" id="pleaseText"></div>
+        <div class="btn-group" style="position: relative; width: 100%;">
+            <button id="btn-yes" style="width: 45%;" onclick="nextPage(2)">Да!</button>
+            <button id="btn-no" style="width: 45%;" onmouseover="moveNoButton()" onclick="moveNoButton()">Нет</button>
+        </div>
+    </div>
+
+    <!-- Страница 2 -->
+    <div class="card" id="page2">
+        <h2>Когда ты свободен? 📅</h2>
+        <input type="datetime-local" id="dateTimeInput">
+        <button onclick="saveDateTime()">Далее 💖</button>
+    </div>
+
+    <!-- Страница 3 -->
+    <div class="card" id="page3">
+        <h2>Выбери, что ты хочешь ✨</h2>
+        <button class="option-btn" onclick="selectOption('Сходить в бассейн 🏊‍♂️')">Сходить в бассейн 🏊‍♂️</button>
+        <button class="option-btn" onclick="selectOption('Посмотреть сериал 🍿')">Посмотреть сериал 🍿</button>
+        <button class="option-btn" onclick="selectOption('Просто приехать к тебе 🏠')">Просто приехать к тебе 🏠</button>
+        <button class="option-btn" onclick="selectOption('Погулять 🚶‍♂️')">Погулять 🚶‍♂️</button>
+    </div>
+
+    <!-- Страница 4 -->
+    <div class="card" id="page4">
+        <img src="https://img.freepik.com/free-vector/cute-bunny-sitting-with-love-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated_138676-7456.jpg" alt="Зайчик с любовью">
+        <h2>Рада, что ты не отказал, буду ждать! 💖🥰</h2>
+    </div>
+
+    <script>
+        // 1. Генерация фоновых сердечек
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-bg');
+            heart.innerHTML = '💗';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+            heart.style.fontSize = Math.random() * 20 + 15 + 'px';
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+        setInterval(createHeart, 300);
+
+        // 2. Логика убегающей кнопки "Нет"
+        const btnNo = document.getElementById('btn-no');
+        const pleaseText = document.getElementById('pleaseText');
+
+        function moveNoButton() {
+            pleaseText.innerText = "Ну пожалуйстаааа 🥺👉👈";
+            
+            // Случайный сдвиг кнопки в сторону
+            const x = (Math.random() - 0.5) * 200;
+            const y = (Math.random() - 0.5) * 200;
+
+            btnNo.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        // 3. Переключение страниц
+        function nextPage(pageNum) {
+            document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
+            document.getElementById(`page${pageNum}`).classList.add('active');
+        }
+
+        // 4. Сохранение времени и выбор опций
+        let chosenDate = '';
+        let chosenActivity = '';
+
+        function saveDateTime() {
+            const input = document.getElementById('dateTimeInput').value;
+            if(!input) {
+                alert('Выбери дату и время, пожалуйста! 💕');
+                return;
+            }
+            chosenDate = input;
+            nextPage(3);
+        }
+
+        function selectOption(option) {
+            chosenActivity = option;
+            nextPage(4);
+            
+            // Салют из сердечек на 4 странице
+            for(let i = 0; i < 30; i++) {
+                setTimeout(createHeart, i * 50);
+            }
+        }
+    </script>
+</body>
+</html>
